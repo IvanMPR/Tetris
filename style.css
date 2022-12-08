@@ -1,0 +1,94 @@
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 62.5%;
+}
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  width: 100vw;
+}
+
+.container {
+  max-width: 1200rem;
+  margin: auto;
+  /* background-color: darkkhaki; */
+  padding: 1rem;
+}
+
+h1 {
+  text-align: center;
+  text-transform: uppercase;
+  margin-top: 1rem;
+  margin-bottom: 2rem;
+  color: #333;
+}
+
+.inner__wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* background-color: darkseagreen; */
+}
+/* .inner__wrapper--right {
+  height: 100%;
+  background-color: aquamarine;
+} */
+.board {
+  width: 40.9rem;
+  display: grid;
+  gap: 1px;
+  grid-template-columns: repeat(10, 1fr);
+  grid-template-rows: auto;
+  position: relative;
+  margin: auto;
+}
+.field {
+  width: 4rem;
+  height: 4rem;
+  border: 1px solid #999;
+  /* background-color: beige; */
+  position: relative;
+}
+.field::before {
+  content: attr(data-fieldId);
+  position: absolute;
+  top: 5%;
+  left: 20%;
+  display: none;
+}
+
+.block {
+  position: absolute;
+}
+
+.yell {
+  background-color: yellow;
+}
+
+.test {
+  background-color: gainsboro;
+}
+
+.fixed {
+  background-color: bisque !important;
+}
+
+.test-block {
+  background-color: aquamarine !important;
+}
+.btn {
+  padding: 0.5rem 1rem;
+  display: block;
+  margin: auto;
+}
+
+/* .long{
+  top: ;
+} */
