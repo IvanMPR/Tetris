@@ -34,6 +34,17 @@ function createBoard() {
 createBoard();
 // helper fn to avoid typing 'document.getElementById....
 const field = id => document.getElementById(id);
+// helper fn to reset some helper elements after tetromino is placed
+const reset = () => {
+  helper.array = [];
+  helper.position = 3;
+  helper.step = -10;
+  helper.isFinished = true;
+  helper.boost = false;
+  pickRandomBlock(blocks);
+  checkScore(helper.frame());
+  helper.isFinished = false;
+};
 
 function boardSkeleton() {
   const allFields = Array.from(document.querySelectorAll('.field')).map(field =>
@@ -203,20 +214,17 @@ function isEndReached() {
     collisionArray.some(el => field(el).classList.contains('fixed'))
   ) {
     const all = Array.from(document.querySelectorAll('.test'));
-    console.log(all);
     all.forEach(field => {
       field.classList.remove('test');
       field.classList.add('fixed');
     });
-    helper.array = [];
-    helper.position = 3;
-    helper.step = -10;
-    helper.isFinished = true;
-    helper.boost = false;
-    pickRandomBlock(blocks);
-    checkScore(helper.frame());
 
-    helper.isFinished = false;
+    reset();
+
+    if (isGameOver()) {
+      helper.isFinished = true;
+      helper.boost = false;
+    }
     displayBlock(
       blocks[helper.block][helper.rotation],
       helper.step,
@@ -228,6 +236,11 @@ function isEndReached() {
       field(fieldId).classList.add('yell');
     });
   }
+}
+
+function isGameOver() {
+  const topRow = Array.from({ length: BOARD_LENGTH }, (_, i) => i);
+  return topRow.some(id => field(id).classList.contains('fixed'));
 }
 
 function init(speed) {
