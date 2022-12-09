@@ -238,27 +238,18 @@ function init(speed) {
     helper
   );
   isEndReached(helper.array);
-  // for (let i = 1; i <= 100000; i++) {
 
-  const interval = setInterval(
-    () => {
-      helper.step += 10;
-      displayBlock(
-        blocks[helper.block][helper.rotation],
-        helper.step,
-        helper.position,
-        helper
-      );
-      isEndReached(helper.array);
-      if (helper.isFinished) clearInterval(interval);
-    },
-    speed
-    //  i / 1 *
-    // helper.boost ? helper.timeout / 10 : helper.timeout
-    // helper.timeout
-  );
-
-  // }
+  const interval = setInterval(() => {
+    helper.step += 10;
+    displayBlock(
+      blocks[helper.block][helper.rotation],
+      helper.step,
+      helper.position,
+      helper
+    );
+    isEndReached(helper.array);
+    if (helper.isFinished) clearInterval(interval);
+  }, speed);
 }
 function boost(speed) {
   helper.boost = true;
@@ -270,25 +261,18 @@ function boost(speed) {
     helper
   );
   isEndReached(helper.array);
-  // for (let i = 1; i <= 100000; i++) {
 
-  const interval = setInterval(
-    () => {
-      helper.step += 10;
-      displayBlock(
-        blocks[helper.block][helper.rotation],
-        helper.step,
-        helper.position,
-        helper
-      );
-      isEndReached(helper.array);
-      if (!helper.boost) clearInterval(interval);
-    },
-    speed / 10
-    //  i / 1 *
-    // helper.boost ? helper.timeout / 10 : helper.timeout
-    // helper.timeout
-  );
+  const interval = setInterval(() => {
+    helper.step += 10;
+    displayBlock(
+      blocks[helper.block][helper.rotation],
+      helper.step,
+      helper.position,
+      helper
+    );
+    isEndReached(helper.array);
+    if (!helper.boost) clearInterval(interval);
+  }, speed / 10);
 }
 button.addEventListener('click', () => {
   init(helper.timeout);
