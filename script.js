@@ -10,7 +10,7 @@ const clickSound = new Audio(
 const helper = {
   block: 0,
   rotation: 0,
-  timeout: 500,
+  timeout: 10000,
   isFinished: false,
   position: 3,
   step: 0,
@@ -18,6 +18,8 @@ const helper = {
   array: [],
   boost: false,
   ticker: BOARD_HEIGHT,
+  leftEdgeTouched: false,
+  rightEdgeTouched: false,
   frame() {
     return boardSkeleton();
   },
@@ -89,8 +91,22 @@ function displayBlock(arr, step, position, helper) {
     }
   }
 }
+function checkLeftEdge(arr) {
+  if (arr.some(id => id % 10 === 1)) {
+    helper.leftEdgeTouched = true;
+    console.log('left edge touched');
+  }
+}
+function checkRightEdge(arr) {
+  if (arr.some(id => id % 10 === 8)) {
+    helper.rightEdgeTouched = true;
+    console.log('right edge touched');
+  }
+}
 
 function moveLeft() {
+  helper.rightEdgeTouched = false;
+  checkLeftEdge(helper.array[0]);
   const test = collisionDetector(helper.array[0], -1);
 
   if (test.some(el => el % 10 === 9 || el % 10 === -1)) {
@@ -113,6 +129,8 @@ function moveLeft() {
 }
 
 function moveRight() {
+  helper.leftEdgeTouched = false;
+  checkRightEdge(helper.array[0]);
   const test = collisionDetector(helper.array[0], 1);
 
   if (test.some(el => el % 10 === 0)) {
@@ -136,15 +154,17 @@ function moveRight() {
 
 function rotate() {
   const [copy] = helper.array.slice();
-  if (!copy.every(el => el % 10 === 0) && !copy.every(el => el % 10 === 9)) {
-    helper.rotation === 3 ? (helper.rotation = 0) : (helper.rotation += 1);
-    displayBlock(
-      blocks[helper.block][helper.rotation],
-      helper.step,
-      helper.position,
-      helper
-    );
-  }
+  // if (helper.leftEdgeTouched) helper.position += 1;
+  // if (!copy.every(el => el % 10 === 0) && !copy.every(el => el % 10 === 9)) {
+  helper.rotation === 3 ? (helper.rotation = 0) : (helper.rotation += 1);
+  // console.log('from rotation ', blocks[helper.block][helper.rotation]);
+  displayBlock(
+    blocks[helper.block][helper.rotation],
+    helper.step,
+    helper.position,
+    helper
+  );
+  // }
 
   console.log(copy, 'from rotation');
   if (copy.every(el => el % 10 === 0)) {
@@ -152,8 +172,8 @@ function rotate() {
     const rotated = Array.from({ length: copy.length }, (_, i) => min + i);
   }
 
-  if (copy.some(el => el % 10 === 0)) helper.position += 1;
-  if (copy.some(el => el % 10 === 9)) helper.position -= 1;
+  // if (copy.some(el => el % 10 === 0)) helper.position += 1;
+  // if (copy.some(el => el % 10 === 9)) helper.position -= 1;
 
   console.log('helper from rotate: ', helper.array, helper.rotation);
 
