@@ -10,7 +10,7 @@ const clickSound = new Audio(
 const helper = {
   block: 0,
   rotation: 0,
-  timeout: 2500,
+  timeout: 1500,
   isFinished: false,
   position: 3,
   step: 0,
@@ -163,14 +163,24 @@ function moveRight() {
 
 function rotate() {
   const [copy] = helper.array.slice();
+  if (helper.block === 6) {
+    helper.rotation === 3 ? (helper.rotation = 0) : (helper.rotation += 1);
+    const testing = blocks[helper.block][helper.rotation].map(
+      el => el + helper.step + helper.position
+    );
+    if (helper.rotation % 2) {
+      console.log('very left');
+      const min = Math.min(...testing);
+      const rotatedArr = Array.from({ length: 4 }, (_, i) => i + min);
+      console.log(rotatedArr, 'when left is touched');
+    }
+  }
 
   helper.rotation === 3 ? (helper.rotation = 0) : (helper.rotation += 1);
   const test = blocks[helper.block][helper.rotation].map(
     el => el + helper.step + helper.position
   );
-  // ||
-  // (test.some(el => el % 10 === 1) &&
-  // test.some(el => el % 10 === 9 || el % 10 === 8))
+
   if (helper.leftEdgeTouched && test.some(el => el % 10 === 9)) {
     blocks[helper.block][helper.rotation] = blocks[helper.block][
       helper.rotation
@@ -185,9 +195,7 @@ function rotate() {
 
     return;
   }
-  // ||
-  // (test.some(el => el % 10 === 8) &&
-  //   test.some(el => el % 10 === 0 || el % 10 === 1))
+
   if (helper.rightEdgeTouched && test.some(el => el % 10 === 0)) {
     blocks[helper.block][helper.rotation] = blocks[helper.block][
       helper.rotation
@@ -314,6 +322,7 @@ function init(speed) {
     if (helper.isFinished) clearInterval(interval);
   }, speed);
 }
+
 function boost(speed) {
   helper.boost = true;
 
@@ -337,6 +346,11 @@ function boost(speed) {
     if (!helper.boost) clearInterval(interval);
   }, speed / 10);
 }
+
+function speedUp() {
+  boost(helper.timeout);
+}
+
 button.addEventListener('click', () => {
   init(helper.timeout);
 });
@@ -362,10 +376,5 @@ addEventListener('keypress', e => {
 addEventListener('keypress', e => {
   const key = e.key;
   if (key !== 's') return;
-  console.log('hello from s', helper.timeout);
   speedUp();
 });
-
-function speedUp() {
-  boost(helper.timeout);
-}
