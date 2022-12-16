@@ -10,7 +10,7 @@ const clickSound = new Audio(
 const helper = {
   block: 0,
   rotation: 0,
-  timeout: 500,
+  timeout: 1000,
   isFinished: false,
   position: 3,
   step: 0,
@@ -96,7 +96,7 @@ function displayBlock(arr, step, position, helper) {
     if (modified.some(el => el % 10 === 9)) {
       helper.rightEdgeTouched = true;
     }
-    // console.log(helper.leftEdgeTouched, helper.rightEdgeTouched);
+    // console.log(modified, helper.leftEdgeTouched, helper.rightEdgeTouched);
   }
 }
 
@@ -162,27 +162,40 @@ function moveRight() {
 }
 
 function rotate() {
-  // if (test.some(el => el % 10 === 0) && test.some(el => el % 10 === 9)) {
-  //   console.log('condition met', helper.position, test);
-  //   return;
-  // }
-  // const [copy] = helper.array.slice();
-  // if (helper.block === 6) {
-  //   helper.rotation === 3 ? (helper.rotation = 0) : (helper.rotation += 1);
-
-  //   console.log(testing);
-  // }
-
-  helper.rotation === 3 ? (helper.rotation = 0) : (helper.rotation += 1);
+  // variable copy holds fields with current block, var test holds fields with current block after the rotation
+  const [copy] = helper.array;
+  helper.rotation === blocks[helper.block].length - 1
+    ? (helper.rotation = 0)
+    : (helper.rotation += 1);
   const test = blocks[helper.block][helper.rotation].map(
     el => el + helper.step + helper.position
   );
-  if (
-    helper.block === 6 &&
-    helper.leftEdgeTouched &&
-    test.some(el => el % 10 === 9)
-  ) {
-    console.log('condition met', 'left', test);
+  console.log(copy, test);
+  if (copy.every(el => el % 10 === 8) && test.some(el => el % 10 === 0)) {
+    helper.position -= 1;
+    displayBlock(
+      blocks[helper.block][helper.rotation],
+      helper.step,
+      helper.position,
+      helper
+    );
+    isEndReached(helper.array);
+    return;
+  }
+
+  if (copy.every(el => el % 10 === 9) && test.some(el => el % 10 === 0)) {
+    helper.position -= 2;
+    displayBlock(
+      blocks[helper.block][helper.rotation],
+      helper.step,
+      helper.position,
+      helper
+    );
+    isEndReached(helper.array);
+    return;
+  }
+
+  if (helper.leftEdgeTouched && test.some(el => el % 10 === 9)) {
     helper.position += 1;
     displayBlock(
       blocks[helper.block][helper.rotation],
@@ -194,42 +207,10 @@ function rotate() {
 
     return;
   }
-  if (
-    helper.block === 6 &&
-    helper.rightEdgeTouched &&
-    test.some(el => el % 10 === 0)
-  ) {
-    console.log('condition met', 'right', test);
-    helper.position -= 2;
-    displayBlock(
-      blocks[helper.block][helper.rotation],
-      helper.step,
-      helper.position,
-      helper
-    );
-    isEndReached(helper.array);
-
-    return;
-  }
-  if (helper.leftEdgeTouched && test.some(el => el % 10 === 9)) {
-    blocks[helper.block][helper.rotation] = blocks[helper.block][
-      helper.rotation
-    ].map(el => el + 1);
-    displayBlock(
-      blocks[helper.block][helper.rotation],
-      helper.step,
-      helper.position,
-      helper
-    );
-    isEndReached(helper.array);
-
-    return;
-  }
-
+  // if (test.some(el => el % 10 === 8) && test.some(el => el % 10 === 0))
   if (helper.rightEdgeTouched && test.some(el => el % 10 === 0)) {
-    blocks[helper.block][helper.rotation] = blocks[helper.block][
-      helper.rotation
-    ].map(el => el - 1);
+    helper.position -= 1;
+    console.log(test, 'right edge');
     displayBlock(
       blocks[helper.block][helper.rotation],
       helper.step,
@@ -307,7 +288,8 @@ function isEndReached() {
       field.classList.remove('test');
       field.classList.add('fixed');
     });
-
+    helper.leftEdgeTouched = false;
+    helper.rightEdgeTouched = false;
     reset();
 
     if (isGameOver()) {
