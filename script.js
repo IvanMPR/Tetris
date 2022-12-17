@@ -170,7 +170,12 @@ function rotate() {
   const test = blocks[helper.block][helper.rotation].map(
     el => el + helper.step + helper.position
   );
-  console.log(copy, test);
+  if (test.some(el => field(el).classList.contains('fixed'))) {
+    helper.rotation === 0
+      ? (helper.rotation = blocks[helper.block].length - 1)
+      : (helper.rotation -= 1);
+    return;
+  }
   if (copy.every(el => el % 10 === 8) && test.some(el => el % 10 === 0)) {
     helper.position -= 1;
     displayBlock(
