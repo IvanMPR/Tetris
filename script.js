@@ -4,6 +4,7 @@ const button = document.querySelector('.btn');
 const BOARD_LENGTH = 10;
 const BOARD_HEIGHT = 20;
 const BLOCK_ROTATIONS = 4;
+const smallGrid = document.querySelector('.grid');
 const clickSound = new Audio(
   './sounds/90125__pierrecartoons1979__click-tiny.wav'
 );
@@ -34,6 +35,14 @@ function createBoard() {
 }
 
 createBoard();
+function createInfoBoard() {
+  let html = '';
+  for (let i = 0; i < 16; i++) {
+    html += `<div class="field" data-fieldId="${i}{smallGrid}" id="${i}"></div>`;
+  }
+  smallGrid.insertAdjacentHTML('beforeend', html.trim());
+}
+createInfoBoard();
 // helper fn to avoid typing 'document.getElementById....
 const field = id => document.getElementById(id);
 // helper fn to reset some helper elements after tetromino is placed
