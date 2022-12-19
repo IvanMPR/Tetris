@@ -232,7 +232,7 @@ function rotate() {
       helper
     );
     isEndReached(helper.array);
-
+    // probaj sa collision detectorom
     return;
   }
 

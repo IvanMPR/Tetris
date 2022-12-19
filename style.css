@@ -93,7 +93,7 @@ h2 {
 .btn {
   padding: 0.5rem 1rem;
   display: block;
-  margin: auto;
+  margin: 2rem auto 0;
 }
 /*
 .info-grid {
@@ -110,4 +110,10 @@ h2 {
   gap: 1px;
   grid-template-columns: repeat(4, 1fr);
   grid-template-rows: auto;
+}
+
+.score,
+.info-level {
+  text-align: center;
+  margin-top: 2rem;
 }
