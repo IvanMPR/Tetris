@@ -1,6 +1,7 @@
 import { blocks } from './modules/blocks/blocks.js';
 const board = document.querySelector('.board');
 const button = document.querySelector('.btn');
+const SMALL_BOARD_LENGTH = 4;
 const BOARD_LENGTH = 10;
 const BOARD_HEIGHT = 20;
 const BLOCK_ROTATIONS = 4;
@@ -8,6 +9,7 @@ const smallGrid = document.querySelector('.grid');
 const clickSound = new Audio(
   './sounds/90125__pierrecartoons1979__click-tiny.wav'
 );
+
 const helper = {
   block: 0,
   rotation: 0,
@@ -33,12 +35,15 @@ function createBoard() {
   }
   board.insertAdjacentHTML('beforeend', html.trim());
 }
-
 createBoard();
+
 function createInfoBoard() {
   let html = '';
+
   for (let i = 0; i < 16; i++) {
-    html += `<div class="field" data-fieldId="${i}{smallGrid}" id="${i}"></div>`;
+    html += `<div class="small-field" data-test="${smallBoardIdMaker(
+      i
+    )}" id="${smallBoardIdMaker(i)}-small"></div>`;
   }
   smallGrid.insertAdjacentHTML('beforeend', html.trim());
 }
@@ -56,6 +61,22 @@ const reset = () => {
   checkScore(helper.frame());
   helper.isFinished = false;
 };
+const resetSmallBoard = () => {
+  document.querySelectorAll('.small-field').forEach(el => {
+    el.classList.remove('small-test');
+  });
+};
+
+// helper fn to create field ids on the small board
+function smallBoardIdMaker(index) {
+  return index <= 3
+    ? index
+    : index > 3 && index <= 7
+    ? index + (BOARD_LENGTH - SMALL_BOARD_LENGTH)
+    : index > 7 && index <= 11
+    ? index + (2 * BOARD_LENGTH - 2 * SMALL_BOARD_LENGTH)
+    : index + (3 * BOARD_LENGTH - 3 * SMALL_BOARD_LENGTH);
+}
 
 function boardSkeleton() {
   const allFields = Array.from(document.querySelectorAll('.field')).map(field =>
@@ -75,8 +96,20 @@ function pickRandomBlock(arr) {
   helper.block = randomNum1;
   helper.rotation = randomNum2;
   helper.array.push(arr[helper.block][helper.rotation]);
+  resetSmallBoard();
+  displayNextBlockOnTheSmallBoard();
 }
 pickRandomBlock(blocks);
+
+function displayNextBlockOnTheSmallBoard() {
+  document.querySelectorAll('.small-field').forEach(el => {
+    const id = el.getAttribute('id');
+    const [currentFieldId] = id.split('-');
+    if (helper.array[0].includes(Number(currentFieldId))) {
+      el.classList.add('small-test');
+    }
+  });
+}
 
 function displayBlock(arr, step, position, helper) {
   if (!helper.isFinished) {
@@ -305,6 +338,7 @@ function isEndReached() {
     helper.leftEdgeTouched = false;
     helper.rightEdgeTouched = false;
     reset();
+    // resetSmallBoard();
 
     if (isGameOver()) {
       helper.isFinished = true;
