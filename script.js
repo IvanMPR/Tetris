@@ -120,7 +120,7 @@ function displayBlock(arr, step, position, helper) {
     });
 
     let modified = arr.map(el => el + step + position);
-    // console.log(modified);
+    console.log(modified);
     if (helper.array.length === 0) helper.array.push(modified);
     else {
       helper.array.shift();
