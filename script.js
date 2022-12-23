@@ -13,8 +13,11 @@ const clickSound = new Audio(
 const helper = {
   block: 0,
   rotation: 0,
+  nextBlock: 0,
+  nextRotation: 0,
   timeout: 1000,
-  isFinished: false,
+  isGameStarted: false,
+  isGameFinished: false,
   position: 3,
   step: 0,
   stepLength: 10,
@@ -37,17 +40,29 @@ function createBoard() {
 }
 createBoard();
 
-function createInfoBoard() {
+function createSmallGrid() {
   let html = '';
 
   for (let i = 0; i < 16; i++) {
-    html += `<div class="small-field" data-test="${smallBoardIdMaker(
+    html += `<div class="small-field" data-test="${smallGridIdMaker(
       i
-    )}" id="${smallBoardIdMaker(i)}-small"></div>`;
+    )}" id="${smallGridIdMaker(i)}-small"></div>`;
   }
   smallGrid.insertAdjacentHTML('beforeend', html.trim());
 }
-createInfoBoard();
+createSmallGrid();
+
+function initializeFirstRandomBlock() {
+  const randomNum1 = Math.floor(Math.random() * blocks.length);
+  const randomNum2 = Math.floor(Math.random() * BLOCK_ROTATIONS);
+
+  helper.block = randomNum1;
+  helper.rotation = randomNum2;
+
+  // helper.array.push(blocks[helper.block][helper.rotation])
+}
+
+initializeFirstRandomBlock();
 // helper fn to avoid typing 'document.getElementById....
 const field = id => document.getElementById(id);
 // helper fn to reset some helper elements after tetromino is placed
@@ -55,11 +70,11 @@ const reset = () => {
   helper.array = [];
   helper.position = 3;
   helper.step = -10;
-  helper.isFinished = true;
+  helper.isGameFinished = true;
   helper.boost = false;
   pickRandomBlock(blocks);
   checkScore(helper.frame());
-  helper.isFinished = false;
+  helper.isGameFinished = false;
 };
 const resetSmallBoard = () => {
   document.querySelectorAll('.small-field').forEach(el => {
@@ -68,7 +83,7 @@ const resetSmallBoard = () => {
 };
 
 // helper fn to create field ids on the small board
-function smallBoardIdMaker(index) {
+function smallGridIdMaker(index) {
   return index <= 3
     ? index
     : index > 3 && index <= 7
@@ -83,36 +98,55 @@ function boardSkeleton() {
     field.getAttribute('id')
   );
   const rows = [];
-  for (let i = 0; i < allFields.length; i += 10) {
-    const current = allFields.slice(i, i + 10);
+  for (let i = 0; i < allFields.length; i += BOARD_LENGTH) {
+    const current = allFields.slice(i, i + BOARD_LENGTH);
     rows.push(current);
   }
   return rows;
 }
 
 function pickRandomBlock(arr) {
-  const randomNum1 = Math.floor(Math.random() * arr.length);
-  const randomNum2 = Math.floor(Math.random() * BLOCK_ROTATIONS);
-  helper.block = randomNum1;
-  helper.rotation = randomNum2;
-  helper.array.push(arr[helper.block][helper.rotation]);
+  const randomNum1 = () => Math.floor(Math.random() * arr.length);
+  const randomNum2 = () => Math.floor(Math.random() * BLOCK_ROTATIONS);
+
+  helper.nextBlock = randomNum1();
+  helper.nextRotation = randomNum2();
+
+  // helper.block = helper.nextBlock;
+  // helper.rotation = helper.nextRotation;
+
+  // helper.nextBlock = randomNum1();
+  // helper.nextRotation = randomNum2();
+  // helper.block = helper.nextBlock;
+  // helper.rotation = helper.nextRotation;
+  // helper.array.push(blocks[helper.block][helper.rotation]);
+
+  // const blocks = [randomNum1(), randomNum2()];
+  // const nextBlocks = [randomNum1(), randomNum2()];
+  // helper.block = blocks[0];
+  // helper.rotation = blocks[1];
+  // helper.nextBlock.push(arr[helper.block][helper.rotation]);
+  // helper.array.push(helper.nextBlock.shift());
   resetSmallBoard();
   displayNextBlockOnTheSmallBoard();
 }
-pickRandomBlock(blocks);
 
 function displayNextBlockOnTheSmallBoard() {
   document.querySelectorAll('.small-field').forEach(el => {
     const id = el.getAttribute('id');
     const [currentFieldId] = id.split('-');
-    if (helper.array[0].includes(Number(currentFieldId))) {
+    if (
+      blocks[helper.nextBlock][helper.nextRotation].includes(
+        Number(currentFieldId)
+      )
+    ) {
       el.classList.add('small-test');
     }
   });
 }
 
 function displayBlock(arr, step, position, helper) {
-  if (!helper.isFinished) {
+  if (!helper.isGameFinished) {
     const clearFields = Array.from(document.querySelectorAll('.field'));
     clearFields.forEach(field => {
       if (!field.classList.contains('fixed'))
@@ -120,7 +154,7 @@ function displayBlock(arr, step, position, helper) {
     });
 
     let modified = arr.map(el => el + step + position);
-    console.log(modified);
+    // console.log(modified);
     if (helper.array.length === 0) helper.array.push(modified);
     else {
       helper.array.shift();
@@ -341,7 +375,7 @@ function isEndReached() {
     // resetSmallBoard();
 
     if (isGameOver()) {
-      helper.isFinished = true;
+      helper.isGameFinished = true;
       helper.boost = false;
     }
     displayBlock(
@@ -380,7 +414,7 @@ function init(speed) {
       helper
     );
     isEndReached(helper.array);
-    if (helper.isFinished) clearInterval(interval);
+    if (helper.isGameFinished) clearInterval(interval);
   }, speed);
 }
 
@@ -413,6 +447,7 @@ function speedUp() {
 }
 
 button.addEventListener('click', () => {
+  pickRandomBlock(blocks);
   init(helper.timeout);
 });
 
