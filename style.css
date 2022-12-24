@@ -36,6 +36,19 @@ h2 {
   text-transform: uppercase;
 }
 
+h3 {
+  text-transform: uppercase;
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+p {
+  font-size: 2rem;
+  font-style: italic;
+  font-weight: bold;
+  color: bisque;
+  background-color: #999;
+}
 /* .inner__wrapper {
   display: flex;
   align-items: center;
