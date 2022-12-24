@@ -9,6 +9,7 @@ const smallGrid = document.querySelector('.grid');
 const clickSound = new Audio(
   './sounds/90125__pierrecartoons1979__click-tiny.wav'
 );
+const scoreAmount = document.querySelector('.score-amount');
 
 const helper = {
   block: 0,
@@ -23,7 +24,8 @@ const helper = {
   stepLength: 10,
   array: [],
   boost: false,
-  ticker: BOARD_HEIGHT,
+  level: 1,
+  points: 0,
   leftEdgeTouched: false,
   rightEdgeTouched: false,
   frame() {
@@ -58,24 +60,25 @@ function initializeFirstRandomBlock() {
 
   helper.block = randomNum1;
   helper.rotation = randomNum2;
-
-  // helper.array.push(blocks[helper.block][helper.rotation])
 }
-
 initializeFirstRandomBlock();
+
 // helper fn to avoid typing 'document.getElementById....
 const field = id => document.getElementById(id);
-// helper fn to reset some helper elements after tetromino is placed
+// helper fn to reset some helper elements after block-tetromino is placed
 const reset = () => {
   helper.array = [];
   helper.position = 3;
   helper.step = -10;
   helper.isGameFinished = true;
   helper.boost = false;
+  helper.block = helper.nextBlock;
+  helper.rotation = helper.nextRotation;
   pickRandomBlock(blocks);
   checkScore(helper.frame());
   helper.isGameFinished = false;
 };
+// helper fn to reset small board after every old block is placed
 const resetSmallBoard = () => {
   document.querySelectorAll('.small-field').forEach(el => {
     el.classList.remove('small-test');
@@ -92,7 +95,16 @@ function smallGridIdMaker(index) {
     ? index + (2 * BOARD_LENGTH - 2 * SMALL_BOARD_LENGTH)
     : index + (3 * BOARD_LENGTH - 3 * SMALL_BOARD_LENGTH);
 }
+// helper fn to sum up the score
+function scoreUp(score) {
+  helper.points += score;
+}
+// helper fn to display the score in the UI
+function displayScore() {
+  scoreAmount.textContent = helper.points;
+}
 
+// returns entire game board with field id's
 function boardSkeleton() {
   const allFields = Array.from(document.querySelectorAll('.field')).map(field =>
     field.getAttribute('id')
@@ -104,29 +116,14 @@ function boardSkeleton() {
   }
   return rows;
 }
-
+// getting next random tetromino-block
 function pickRandomBlock(arr) {
-  const randomNum1 = () => Math.floor(Math.random() * arr.length);
-  const randomNum2 = () => Math.floor(Math.random() * BLOCK_ROTATIONS);
+  const randomNum1 = Math.floor(Math.random() * arr.length);
+  const randomNum2 = Math.floor(Math.random() * BLOCK_ROTATIONS);
 
-  helper.nextBlock = randomNum1();
-  helper.nextRotation = randomNum2();
+  helper.nextBlock = randomNum1;
+  helper.nextRotation = randomNum2;
 
-  // helper.block = helper.nextBlock;
-  // helper.rotation = helper.nextRotation;
-
-  // helper.nextBlock = randomNum1();
-  // helper.nextRotation = randomNum2();
-  // helper.block = helper.nextBlock;
-  // helper.rotation = helper.nextRotation;
-  // helper.array.push(blocks[helper.block][helper.rotation]);
-
-  // const blocks = [randomNum1(), randomNum2()];
-  // const nextBlocks = [randomNum1(), randomNum2()];
-  // helper.block = blocks[0];
-  // helper.rotation = blocks[1];
-  // helper.nextBlock.push(arr[helper.block][helper.rotation]);
-  // helper.array.push(helper.nextBlock.shift());
   resetSmallBoard();
   displayNextBlockOnTheSmallBoard();
 }
@@ -144,7 +141,7 @@ function displayNextBlockOnTheSmallBoard() {
     }
   });
 }
-
+// main fn for displaying block on the grid
 function displayBlock(arr, step, position, helper) {
   if (!helper.isGameFinished) {
     const clearFields = Array.from(document.querySelectorAll('.field'));
@@ -154,7 +151,7 @@ function displayBlock(arr, step, position, helper) {
     });
 
     let modified = arr.map(el => el + step + position);
-    // console.log(modified);
+
     if (helper.array.length === 0) helper.array.push(modified);
     else {
       helper.array.shift();
@@ -172,7 +169,6 @@ function displayBlock(arr, step, position, helper) {
     if (modified.some(el => el % 10 === 9)) {
       helper.rightEdgeTouched = true;
     }
-    // console.log(modified, helper.leftEdgeTouched, helper.rightEdgeTouched);
   }
 }
 
@@ -240,9 +236,11 @@ function moveRight() {
 function rotate() {
   // variable copy holds fields with current block, var test holds fields with current block after the rotation
   const [copy] = helper.array;
+  // if rotation num is bigger that 3([0,1,2,3]), reset it to beginning([0])
   helper.rotation === blocks[helper.block].length - 1
     ? (helper.rotation = 0)
     : (helper.rotation += 1);
+
   const test = blocks[helper.block][helper.rotation].map(
     el => el + helper.step + helper.position
   );
@@ -316,13 +314,13 @@ function rotate() {
 
   isEndReached(helper.array);
 }
-
+// delete row if score is hit
 function deleteRow(row) {
   row.forEach(fieldId => {
     field(fieldId).classList.remove('fixed');
   });
 }
-
+// slide down every block above the last score line
 function shiftDown(rowNumber, frame) {
   let i = rowNumber;
   while (i > 0) {
@@ -336,7 +334,7 @@ function shiftDown(rowNumber, frame) {
     i--;
   }
 }
-
+// check if score happened
 function checkScore(rows) {
   for (let i = 0; i < rows.length; i++) {
     const currentRow = rows[i];
@@ -347,9 +345,10 @@ function checkScore(rows) {
       })
     )
       continue;
-
+    scoreUp(100);
     deleteRow(currentRow);
     shiftDown(i, helper.frame());
+    displayScore();
   }
 }
 
@@ -474,3 +473,15 @@ addEventListener('keypress', e => {
   if (key !== 's') return;
   speedUp();
 });
+
+// var removeDuplicates = function (nums) {
+//   const visited = new Set();
+//   nums.forEach(num => visited.add(num));
+//   console.log(visited);
+//   console.log(visited);
+
+//   return nums - visited.size;
+// };
+
+// console.log(removeDuplicates([0, 0, 1, 1, 1, 2, 2, 3, 3, 4]));
+// console.log(removeDuplicates([1, 1, 1, 1]));
