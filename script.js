@@ -368,6 +368,8 @@ function isEndReached() {
     helper.leftEdgeTouched = false;
     helper.rightEdgeTouched = false;
     reset();
+    scoreUp(5);
+    displayScore();
 
     if (isGameOver()) {
       helper.isGameFinished = true;
@@ -386,7 +388,7 @@ function isGameOver() {
   const topRow = Array.from({ length: BOARD_LENGTH }, (_, i) => i);
   return topRow.some(id => field(id).classList.contains('fixed'));
 }
-
+// if level 1 call init with speed 1, (make init function generator with various speeds)
 function init(speed) {
   displayBlock(
     blocks[helper.block][helper.rotation],
