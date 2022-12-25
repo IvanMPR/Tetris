@@ -10,14 +10,14 @@ const clickSound = new Audio(
   './sounds/90125__pierrecartoons1979__click-tiny.wav'
 );
 const scoreAmount = document.querySelector('.score-amount');
-
+const levelAmount = document.querySelector('.level-amount');
+let booster = 1;
 const helper = {
   block: 0,
   rotation: 0,
   nextBlock: 0,
   nextRotation: 0,
-  timeout: 1000,
-  isGameStarted: false,
+  // isGameStarted: false,
   isGameFinished: false,
   position: 3,
   step: 0,
@@ -28,6 +28,7 @@ const helper = {
   points: 0,
   leftEdgeTouched: false,
   rightEdgeTouched: false,
+  timeout: 1000,
   frame() {
     return boardSkeleton();
   },
@@ -78,6 +79,7 @@ const reset = () => {
   checkScore(helper.frame());
   helper.isGameFinished = false;
 };
+
 // helper fn to reset small board after every old block is placed
 const resetSmallBoard = () => {
   document.querySelectorAll('.small-field').forEach(el => {
@@ -102,6 +104,10 @@ function scoreUp(score) {
 // helper fn to display the score in the UI
 function displayScore() {
   scoreAmount.textContent = helper.points;
+}
+// helper fn to help detect collision(depending on the offset value)
+function collisionDetector(arr, offset) {
+  return arr.map(el => Number(el) + offset).filter(el => !arr.includes(el));
 }
 
 // returns entire game board with field id's
@@ -286,7 +292,7 @@ function rotate() {
 
     return;
   }
-  // if (test.some(el => el % 10 === 8) && test.some(el => el % 10 === 0))
+
   if (helper.rightEdgeTouched && test.some(el => el % 10 === 0)) {
     helper.position -= 1;
     console.log(test, 'right edge');
@@ -297,11 +303,8 @@ function rotate() {
       helper
     );
     isEndReached(helper.array);
-    // probaj sa collision detectorom
     return;
   }
-
-  console.log(test, 'current');
 
   displayBlock(
     blocks[helper.block][helper.rotation],
@@ -309,11 +312,9 @@ function rotate() {
     helper.position,
     helper
   );
-
-  // console.log(copy, 'previous');
-
   isEndReached(helper.array);
 }
+
 // delete row if score is hit
 function deleteRow(row) {
   row.forEach(fieldId => {
@@ -352,10 +353,6 @@ function checkScore(rows) {
   }
 }
 
-function collisionDetector(arr, offset) {
-  return arr.map(el => Number(el) + offset).filter(el => !arr.includes(el));
-}
-
 function isEndReached() {
   const collisionArray = collisionDetector(helper.array[0], 10);
 
@@ -371,7 +368,6 @@ function isEndReached() {
     helper.leftEdgeTouched = false;
     helper.rightEdgeTouched = false;
     reset();
-    // resetSmallBoard();
 
     if (isGameOver()) {
       helper.isGameFinished = true;
@@ -383,10 +379,6 @@ function isEndReached() {
       helper.position,
       helper
     );
-  } else {
-    collisionArray.forEach(fieldId => {
-      field(fieldId).classList.add('yell');
-    });
   }
 }
 
@@ -414,7 +406,7 @@ function init(speed) {
     );
     isEndReached(helper.array);
     if (helper.isGameFinished) clearInterval(interval);
-  }, speed);
+  }, speed * booster);
 }
 
 function boost(speed) {
@@ -444,44 +436,28 @@ function boost(speed) {
 function speedUp() {
   boost(helper.timeout);
 }
-
+// ? Event Listeners // ------------------- //
 button.addEventListener('click', () => {
   pickRandomBlock(blocks);
   init(helper.timeout);
 });
 
 addEventListener('keypress', e => {
-  const key = e.key;
-  if (key !== 'a') return;
+  if (e.key !== 'a') return;
   moveLeft();
 });
 
 addEventListener('keypress', e => {
-  const key = e.key;
-  if (key !== 'd') return;
+  if (e.key !== 'd') return;
   moveRight();
 });
 
 addEventListener('keypress', e => {
-  const key = e.key;
-  if (key !== 'w') return;
+  if (e.key !== 'w') return;
   rotate();
 });
 
 addEventListener('keypress', e => {
-  const key = e.key;
-  if (key !== 's') return;
+  if (e.key !== 's') return;
   speedUp();
 });
-
-// var removeDuplicates = function (nums) {
-//   const visited = new Set();
-//   nums.forEach(num => visited.add(num));
-//   console.log(visited);
-//   console.log(visited);
-
-//   return nums - visited.size;
-// };
-
-// console.log(removeDuplicates([0, 0, 1, 1, 1, 2, 2, 3, 3, 4]));
-// console.log(removeDuplicates([1, 1, 1, 1]));
