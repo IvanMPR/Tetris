@@ -6,18 +6,13 @@ const BOARD_LENGTH = 10;
 const BOARD_HEIGHT = 20;
 const BLOCK_ROTATIONS = 4;
 const smallGrid = document.querySelector('.grid');
-const clickSound = new Audio(
-  './sounds/90125__pierrecartoons1979__click-tiny.wav'
-);
 const scoreAmount = document.querySelector('.score-amount');
-const levelAmount = document.querySelector('.level-amount');
-let booster = 1;
+
 const helper = {
   block: 0,
   rotation: 0,
   nextBlock: 0,
   nextRotation: 0,
-  // isGameStarted: false,
   isGameFinished: false,
   position: 3,
   step: 0,
@@ -28,7 +23,7 @@ const helper = {
   points: 0,
   leftEdgeTouched: false,
   rightEdgeTouched: false,
-  timeout: 1000,
+  timeout: 500,
   frame() {
     return boardSkeleton();
   },
@@ -66,6 +61,7 @@ initializeFirstRandomBlock();
 
 // helper fn to avoid typing 'document.getElementById....
 const field = id => document.getElementById(id);
+
 // helper fn to reset some helper elements after block-tetromino is placed
 const reset = () => {
   helper.array = [];
@@ -97,14 +93,17 @@ function smallGridIdMaker(index) {
     ? index + (2 * BOARD_LENGTH - 2 * SMALL_BOARD_LENGTH)
     : index + (3 * BOARD_LENGTH - 3 * SMALL_BOARD_LENGTH);
 }
+
 // helper fn to sum up the score
 function scoreUp(score) {
   helper.points += score;
 }
+
 // helper fn to display the score in the UI
 function displayScore() {
   scoreAmount.textContent = helper.points;
 }
+
 // helper fn to help detect collision(depending on the offset value)
 function collisionDetector(arr, offset) {
   return arr.map(el => Number(el) + offset).filter(el => !arr.includes(el));
@@ -122,6 +121,7 @@ function boardSkeleton() {
   }
   return rows;
 }
+
 // getting next random tetromino-block
 function pickRandomBlock(arr) {
   const randomNum1 = Math.floor(Math.random() * arr.length);
@@ -147,6 +147,7 @@ function displayNextBlockOnTheSmallBoard() {
     }
   });
 }
+
 // main fn for displaying block on the grid
 function displayBlock(arr, step, position, helper) {
   if (!helper.isGameFinished) {
@@ -177,19 +178,15 @@ function displayBlock(arr, step, position, helper) {
     }
   }
 }
-function levelUp(score) {
-  return score > 500;
-}
+
 function checkLeftEdge(arr) {
   if (arr.some(id => id % 10 === 1)) {
     helper.leftEdgeTouched = true;
-    console.log('left edge touched');
   }
 }
 function checkRightEdge(arr) {
   if (arr.some(id => id % 10 === 8)) {
     helper.rightEdgeTouched = true;
-    console.log('right edge touched');
   }
 }
 
@@ -213,7 +210,7 @@ function moveLeft() {
     helper.position,
     helper
   );
-  // clickSound.play();
+
   isEndReached(helper.array);
 }
 
@@ -237,7 +234,7 @@ function moveRight() {
     helper.position,
     helper
   );
-  // clickSound.play();
+
   isEndReached(helper.array);
 }
 
@@ -390,7 +387,7 @@ function isGameOver() {
   const topRow = Array.from({ length: BOARD_LENGTH }, (_, i) => i);
   return topRow.some(id => field(id).classList.contains('fixed'));
 }
-// if level 1 call init with speed 1, (make init function generator with various speeds)
+
 function init(speed) {
   displayBlock(
     blocks[helper.block][helper.rotation],
@@ -410,7 +407,7 @@ function init(speed) {
     );
     isEndReached(helper.array);
     if (helper.isGameFinished) clearInterval(interval);
-  }, speed * booster);
+  }, speed);
 }
 
 function boost(speed) {
@@ -465,172 +462,3 @@ addEventListener('keypress', e => {
   if (e.key !== 's') return;
   speedUp();
 });
-
-// const makeList = str => {
-//   const mazeFields = str.split('\n');
-
-//   const list = {};
-
-//   for (let i = 0; i < mazeFields.length; i++) {
-//     for (let j = 0; j < mazeFields[i].length; j++) {
-//       const current = [i, j].join('');
-
-//       const up =
-//         !mazeFields[i - 1] || mazeFields[i - 1][j] === 'W'
-//           ? null
-//           : [i - 1, j].join('');
-
-//       const down =
-//         !mazeFields[i + 1] || mazeFields[i + 1][j] === 'W'
-//           ? null
-//           : [i + 1, j].join('');
-
-//       const left =
-//         !mazeFields[i][j - 1] || mazeFields[i][j - 1] === 'W'
-//           ? null
-//           : [i, j - 1].join('');
-//       const right =
-//         !mazeFields[i][j + 1] || mazeFields[i][j + 1] === 'W'
-//           ? null
-//           : [i, j + 1].join('');
-//       const values = [up, down, left, right].filter(el => el !== null);
-
-//       list[current] = values;
-//     }
-//   }
-//   return list;
-// };
-
-// const truePath1 = `.W.
-// .W.
-// ...`;
-// const falsePath1 = `.W.
-// .W.
-// W..`;
-// const truePath2 = `......
-// ......
-// ......
-// ......
-// ......
-// ......`;
-// const falsePath2 = `......
-// ......
-// ......
-// ......
-// .....W
-// ....W.`;
-// const snakePath = `.W...W...W...
-// .W.W.W.W.W.W.
-// .W.W.W.W.W.W.
-// .W.W.W.W.W.W.
-// .W.W.W.W.W.W.
-// .W.W.W.W.W.W.
-// .W.W.W.W.W.W.
-// .W.W.W.W.W.W.
-// .W.W.W.W.W.W.
-// .W.W.W.W.W.W.
-// .W.W.W.W.W.W.
-// .W.W.W.W.W.W.
-// ...W...W...W.`;
-// const test1 = makeList(truePath1);
-// console.log(test1);
-// const test2 = makeList(falsePath1);
-// const test3 = makeList(truePath2);
-// const test4 = makeList(falsePath2);
-// const test5 = makeList(snakePath);
-// const hasPath = (graph, start, end) => {
-//   const visited = new Set();
-//   const queue = [start];
-
-//   while (queue.length) {
-//     const current = queue.shift();
-//     if (visited.has(current)) continue;
-//     visited.add(current);
-
-//     if (current === end) return true;
-//     for (let neighbor of graph[current]) {
-//       queue.push(neighbor);
-//     }
-//   }
-
-//   return false;
-// };
-
-// console.log(hasPath(test5, '00', '22'));
-// console.log(hasPath(adjList, start, end));
-// function pathFinder(maze) {
-//   let start = String([0, 0]); // start is always [0,0] => joined in array equals '00'
-//   let end; //  end is calculated programatically depending of the maze size
-//   // create adjacency list for traversing
-//   const makeList = str => {
-//     const mazeFields = str.split('\n');
-//     end = String([mazeFields.length - 1, mazeFields.length - 1]);
-//     console.log(start, 'start', end, 'end');
-//     const list = {};
-
-//     for (let i = 0; i < mazeFields.length; i++) {
-//       for (let j = 0; j < mazeFields[i].length; j++) {
-//         const current = String([i, j]);
-
-//         const up =
-//           !mazeFields[i - 1] || mazeFields[i - 1][j] === 'W'
-//             ? null
-//             : String([i - 1, j]);
-
-//         const down =
-//           !mazeFields[i + 1] || mazeFields[i + 1][j] === 'W'
-//             ? null
-//             : String([i + 1, j]);
-
-//         const left =
-//           !mazeFields[i][j - 1] || mazeFields[i][j - 1] === 'W'
-//             ? null
-//             : String([i, j - 1]);
-//         const right =
-//           !mazeFields[i][j + 1] || mazeFields[i][j + 1] === 'W'
-//             ? null
-//             : String([i, j + 1]);
-//         const values = [up, down, left, right].filter(el => el !== null);
-
-//         list[current] = values;
-//       }
-//     }
-//     return list;
-//   };
-//   const hasPath = (graph, src, dst, visited) => {
-//     if (src === dst) return true;
-//     if (visited.has(src)) return false;
-//     visited.add(src);
-
-//     for (let neighbor of graph[src]) {
-//       if (hasPath(graph, neighbor, dst, visited) === true) {
-//         return true;
-//       }
-//     }
-
-//     return false;
-//   };
-
-//   // create isPathPossible function that returns boolean (BFS)
-//   // const hasPath = (graph, start, end) => {
-//   //   const visited = new Set();
-//   //   const queue = [start];
-
-//   //   while (queue.length) {
-//   //     const current = queue.shift();
-//   //     // console.log(current, 'current');
-//   //     if (visited.has(current)) continue;
-//   //     visited.add(current);
-//   //     if (current === end) return true;
-//   //     for (let neighbor of graph[current]) {
-//   //       queue.push(neighbor);
-//   //     }
-//   //   }
-//   //   return false;
-//   // };
-
-//   const list = makeList(maze);
-//   console.log(list);
-//   return hasPath(list, start, end, new Set());
-// }
-// console.log(pathFinder(snakePath));
